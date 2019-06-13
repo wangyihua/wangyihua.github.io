@@ -5,18 +5,18 @@
   
 
   
-  <title>check list of PBS | Hexo</title>
+  <title>check list of PBS issues | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="基本故障点分析 由于PBS Works是一个整体的hpc解决方案，所以在很多时候用户只要在使用高性能计算出现问题后，第一时间就认为是我们的pbs出现了问题，我们对通常会导致计算失败的故障点列示如下： 硬件基本环境：磁盘空间，网络连通性，防火墙配置； 系统基本环境：操作系统基本设置，用户认证（包括所有节点），ssh或rsh，并行文件系统，时间服务器，邮件系统，windows共享文件系统；   应用">
 <meta property="og:type" content="article">
-<meta property="og:title" content="check list of PBS">
+<meta property="og:title" content="check list of PBS issues">
 <meta property="og:url" content="http://yoursite.com/2019/06/13/check-list-of-PBS/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="基本故障点分析 由于PBS Works是一个整体的hpc解决方案，所以在很多时候用户只要在使用高性能计算出现问题后，第一时间就认为是我们的pbs出现了问题，我们对通常会导致计算失败的故障点列示如下： 硬件基本环境：磁盘空间，网络连通性，防火墙配置； 系统基本环境：操作系统基本设置，用户认证（包括所有节点），ssh或rsh，并行文件系统，时间服务器，邮件系统，windows共享文件系统；   应用">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-06-13T05:10:55.923Z">
+<meta property="og:updated_time" content="2019-06-13T05:13:54.996Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="check list of PBS">
+<meta name="twitter:title" content="check list of PBS issues">
 <meta name="twitter:description" content="基本故障点分析 由于PBS Works是一个整体的hpc解决方案，所以在很多时候用户只要在使用高性能计算出现问题后，第一时间就认为是我们的pbs出现了问题，我们对通常会导致计算失败的故障点列示如下： 硬件基本环境：磁盘空间，网络连通性，防火墙配置； 系统基本环境：操作系统基本设置，用户认证（包括所有节点），ssh或rsh，并行文件系统，时间服务器，邮件系统，windows共享文件系统；   应用">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -78,7 +78,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      check list of PBS
+      check list of PBS issues
     </h1>
   
 
@@ -102,6 +102,7 @@
 <li><p>主机名是否能够正常解析（ping 主机名）</p>
 </li>
 <li><p>pbs服务是否开启，头节点验证pbs_server.bin和pbs_sched进程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/pbs status</span><br><span class="line">systemctl status pbs</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>计算节点验证pbs_mom进程是否存在</p>
 <pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -ef |grep pbs</span><br><span class="line">/etc/init.d/pbs status</span><br></pre></td></tr></table></figure></code></pre></li>
@@ -116,7 +117,7 @@
 <li><p>可以用普通用户提交一个sleep作业看看是否正常如qsub – /bin/sleep 10</p>
 </li>
 <li><p>license服务是否正常检查,查看license是否可用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lmutil lmstat 7788@hostname -a</span><br><span class="line">lmxutil lmstat -host hostname -port 6200</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lmutil lmstat 7788@hostname -a</span><br><span class="line">lmxendutil licstat -host hostname -port 6200</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>license节点报错出现时间setback时，可用下列命令恢复超前时间文件。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">touch /tmp/timestamp</span><br><span class="line">cd /</span><br><span class="line">find . -newer /tmp/timestamp -print0 | xargs -0 touch</span><br></pre></td></tr></table></figure>
@@ -150,19 +151,29 @@
 </li>
 </ul>
 <h2 id="作业可以提交但是闪退"><a href="#作业可以提交但是闪退" class="headerlink" title="作业可以提交但是闪退"></a>作业可以提交但是闪退</h2><ul>
-<li>查看作业脚本是否有问题，如dos2unix转化一下脚本格式，windows格式在linux下会有问题；</li>
-<li>检查所有节点磁盘空间是否已满；</li>
-<li>通过tracejob查看作业退出代码，是否为非0退出，如果为负数，则为基本环境问题，如用户是否可以登录，是否有家目录，如果为正数大于0，那么有可能是因为计算节点执行相关程序执行出错，找到计算节点后手工执行测试。</li>
-<li>也可以用qusb -I提交一个交互式作业进行测试</li>
+<li><p>查看作业脚本是否有问题，如dos2unix转化一下脚本格式，windows格式在linux下会有问题；</p>
+</li>
+<li><p>检查所有节点磁盘空间是否已满；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df -h</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过tracejob查看作业退出代码，是否为非0退出，如果为负数，则为基本环境问题，如用户是否可以登录，是否有家目录，如果为正数大于0，那么有可能是因为计算节点执行相关程序执行出错，找到计算节点后手工执行测试。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tracejob -v -n20 jobid</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>也可以用qusb -I提交一个交互式作业进行测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qsub -I</span><br></pre></td></tr></table></figure>
+
+</li>
 </ul>
 <h2 id="运行pbs相关命令出现权限问题"><a href="#运行pbs相关命令出现权限问题" class="headerlink" title="运行pbs相关命令出现权限问题"></a>运行pbs相关命令出现权限问题</h2><ul>
-<li>检查所运行文件权限，采用命令pbs_prob，采用pbs_prob -v详细模式查看相关文件权限，采用pbs_prob -f开启修复权限功能。</li>
+<li>检查所运行文件权限，采用命令pbs_prob，采用pbs_prob -v详细模式查看相关文件权限，采用pbs_prob -f开启修复权限功能。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pbs_prob -v</span><br><span class="line">pbs_prob -f</span><br></pre></td></tr></table></figure>
+
+</li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/13/check-list-of-PBS/" data-id="cjwu7gk3v00014vtbzyzzc1pc" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/13/check-list-of-PBS/" data-id="cjwu7k99h00015utb0mu59101" class="article-share-link">Share</a>
       
       
     </footer>
@@ -211,7 +222,7 @@
       <ul>
         
           <li>
-            <a href="/2019/06/13/check-list-of-PBS/">check list of PBS</a>
+            <a href="/2019/06/13/check-list-of-PBS/">check list of PBS issues</a>
           </li>
         
           <li>
